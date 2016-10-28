@@ -1,0 +1,27 @@
+﻿Build started 28.10.2016 15:09:09.
+     1>Project "C:\Users\ustad\Documents\Visual Studio 2012\Projects\BranchAndBound\BranchAndBound\BranchAndBound.vcxproj" on node 2 (Rebuild target(s)).
+     1>ClCompile:
+         C:\Program Files (x86)\Microsoft Visual Studio 12.0\VC\bin\CL.exe /c /Zi /nologo /W3 /WX- /O2 /Oi /Oy- /GL /D WIN32 /D NDEBUG /D _CONSOLE /D _UNICODE /D UNICODE /Gm- /EHsc /MT /GS /Gy /fp:precise /Zc:wchar_t /Zc:forScope /Fo"Release\\" /Fd"Release\vc120.pdb" /Gd /TP /analyze- /errorReport:prompt main.cpp TSPv2.cpp Utils.h
+         main.cpp
+     1>main.cpp(73): warning C4018: '<' : signed/unsigned mismatch
+     1>main.cpp(190): warning C4244: 'argument' : conversion from 'time_t' to 'unsigned int', possible loss of data
+     1>main.cpp(216): warning C4018: '<' : signed/unsigned mismatch
+         TSPv2.cpp
+     1>TSPv2.cpp(65): warning C4018: '<' : signed/unsigned mismatch
+     1>TSPv2.cpp(67): warning C4018: '<' : signed/unsigned mismatch
+     1>TSPv2.cpp(71): warning C4018: '<' : signed/unsigned mismatch
+     1>TSPv2.cpp(522): warning C4018: '>=' : signed/unsigned mismatch
+     1>TSPv2.cpp(542): warning C4018: '>=' : signed/unsigned mismatch
+         Utils.h
+       Link:
+         C:\Program Files (x86)\Microsoft Visual Studio 12.0\VC\bin\link.exe /ERRORREPORT:PROMPT /OUT:"C:\Users\ustad\Documents\Visual Studio 2012\Projects\BranchAndBound\Release\BranchAndBound.exe" /INCREMENTAL:NO /NOLOGO kernel32.lib user32.lib gdi32.lib winspool.lib comdlg32.lib advapi32.lib shell32.lib ole32.lib oleaut32.lib uuid.lib odbc32.lib odbccp32.lib /MANIFEST /MANIFESTUAC:"level='asInvoker' uiAccess='false'" /manifest:embed /DEBUG /PDB:"C:\Users\ustad\Documents\Visual Studio 2012\Projects\BranchAndBound\Release\BranchAndBound.pdb" /SUBSYSTEM:CONSOLE /OPT:REF /OPT:ICF /LTCG /TLBID:1 /DYNAMICBASE /NXCOMPAT /IMPLIB:"C:\Users\ustad\Documents\Visual Studio 2012\Projects\BranchAndBound\Release\BranchAndBound.lib" /MACHINE:X86 /SAFESEH Release\main.obj
+         Release\TSPv2.obj
+         Release\Utils.obj
+         Generating code
+         Finished generating code
+         BranchAndBound.vcxproj -> C:\Users\ustad\Documents\Visual Studio 2012\Projects\BranchAndBound\Release\BranchAndBound.exe
+     1>Done Building Project "C:\Users\ustad\Documents\Visual Studio 2012\Projects\BranchAndBound\BranchAndBound\BranchAndBound.vcxproj" (Rebuild target(s)).
+
+Build succeeded.
+
+Time Elapsed 00:00:06.34

@@ -13,20 +13,19 @@ vector<Point> TSP::newEdge;
 Node::Node(int numRows, int numCols) {
 	this->numRows = numRows;
 	this->numCols = numCols;
-	b = BitsetPtr(new vector<int>);
 	for (int i = 0; i <= numCols; i++)
 	{
-		b->push_back(0);
+		b.push_back(0);
 	}
 	nodeCosts = new int[numCols + 1]; // Natural indexing
 	constraint = new int*[numRows + 1]; // Natural
-	for (int i = 1; i < numRows + 1; i++)
+	for (int i = 0; i < numRows + 1; i++)
 	{
 		constraint[i] = new int[numCols + 1];
 	}
-	for (int i = 1; i < numRows + 1; i++)
+	for (int i = 0; i < numRows + 1; i++)
 	{
-		for (int j = 1; j < numRows + 1; j++)
+		for (int j = 0; j < numRows + 1; j++)
 		{
 			constraint[i][j] = 0;
 		}
@@ -39,10 +38,9 @@ Node::Node(int numRows, int numCols) {
 
 Node::~Node()
 {
-	b->clear();
-	b.reset();
+	b.clear();
 	delete[] trip;
-	for (int i = 1; i <= numCols; i++)
+	for (int i = 0; i <= numCols; i++)
 	{
 		delete[] constraint[i];
 	}
@@ -84,7 +82,13 @@ int Node::AssignPoint(Point p, int edgeIndex) {
 //////////////////////////////////////////////////////////////////////////////
 
 void Node::SetConstraint(int** constraint) {
-	this->constraint = constraint;
+	for (int i = 0; i <= numCols; i++)
+	{
+		for (int j = 0; j <= numCols; j++)
+		{
+			this->constraint[i][j] = constraint[i][j];
+		}
+	}
 }
 
 //////////////////////////////////////////////////////////////////////////////
@@ -288,15 +292,13 @@ boolean Node::IsTour() {
 
 boolean Node::IsCycle(int row, int col) 
 {
-	b->clear();
-	b.reset(new vector<int>);
 	for (int i = 0; i <= numCols; i++)
 	{
-		b->push_back(0);
+		b[i] = 0;
 	}
 
-	b->at(row) = 1;
-	b->at(col) = 1;
+	b[row] = 1;
+	b[col] = 1;
 
 	int from = row;
 	int pos = col;
@@ -309,7 +311,7 @@ boolean Node::IsCycle(int row, int col)
 				edges++;
 				from = pos;
 				pos = column;
-				b->at(pos) = 1;
+				b[pos] = 1;
 				quit = false;
 				break;
 			}
@@ -362,10 +364,10 @@ int Node::NextSmallest() {
 
 //////////////////////////////////////////////////////////////////////////////
 
-int Node::NumCities(const BitsetPtr& b) {
+int Node::NumCities(vector<int> b) {
 	int num = 0;
 	for (int i = 1; i <= numRows; i++) {
-		if (b->at(i)) {
+		if (b.at(i)) {
 			num++;
 		}
 	}
@@ -381,6 +383,7 @@ TSP::TSP(int** costMatrix, int size, int bestTour, int maxTime) {
 	this->maxTime = maxTime;
 	this->bestTour = bestTour;
 	numRows = numCols = size;
+	bestNode = NULL;
 	c.SetCost(numRows, numCols);
 	for (int row = 1; row <= size; row++) {
 		for (int col = 1; col <= size; col++) {
@@ -395,6 +398,7 @@ TSP::TSP(int** costMatrix, int size, int maxTime) {
 	this->maxTime = maxTime;
 	numRows = numCols = size;
 	c.SetCost(numRows, numCols);
+	bestNode = NULL;
 	for (int row = 1; row <= size; row++) {
 		for (int col = 1; col <= size; col++) {
 			c.assignCost(costMatrix[row][col], row, col);
@@ -416,14 +420,14 @@ void TSP::generateSolution() {
 		}
 	}
 	// Create root node
-	NodePtr root(new Node(numRows, numCols));
+	Node* root = new Node(numRows, numCols);
 	newNodeCount++;
 	root->ComputeLowerBound();
 
 	start = clock();
 	BranchAndBound(root, -1);
 	duration = (std::clock() - start) / (double)CLOCKS_PER_SEC;
-	root.reset();
+	delete root;
 }
 
 //////////////////////////////////////////////////////////////////////////////
@@ -469,7 +473,7 @@ int* TSP::trip() {
 
 //////////////////////////////////////////////////////////////////////////////
 
-void TSP::BranchAndBound(const NodePtr& node, int edgeIndex) {
+void TSP::BranchAndBound(Node* node, int edgeIndex) {
 	counter++;
 	if (counter >= MAX_ATTEMPT)
 	{
@@ -483,7 +487,7 @@ void TSP::BranchAndBound(const NodePtr& node, int edgeIndex) {
 
 		return;
 	}
-	if (node != nullptr && edgeIndex < (int)newEdge.size())
+	if (node != NULL && edgeIndex < (int)newEdge.size())
 	{
 		int leftEdgeIndex = 0, rightEdgeIndex = 0;
 		if (node->IsTour()) 
@@ -492,7 +496,10 @@ void TSP::BranchAndBound(const NodePtr& node, int edgeIndex) {
 			if (node->TourCost() < bestTour)
 			{
 				bestTour = node->TourCost();
-				bestNode.reset();
+				if (bestNode != NULL)
+				{
+					//delete bestNode;
+				}
 				bestNode = node;
 				cout << "Current solution: " << bestTour << endl;
 				counter = 0;
@@ -503,9 +510,9 @@ void TSP::BranchAndBound(const NodePtr& node, int edgeIndex) {
 			if (node->LowerBound() < 2 * bestTour) 
 			{
 				// Create left child node
-				NodePtr leftChild(new Node(numRows, numCols));
+				Node* leftChild = new Node(numRows, numCols);
 				newNodeCount++;
-				leftChild->SetConstraint(copy(node->Constraint()));
+				leftChild->SetConstraint(node->Constraint());
 				if (edgeIndex != -1 && ((Point)newEdge[edgeIndex]).getX() > 0) {
 					edgeIndex += 2;
 				}
@@ -513,8 +520,8 @@ void TSP::BranchAndBound(const NodePtr& node, int edgeIndex) {
 					edgeIndex++;
 				}
 				if (edgeIndex >= newEdge.size()) {
-					leftChild.reset();
-					leftChild = nullptr;
+					delete leftChild;
+					leftChild = NULL;
 					return;
 				}
 				Point p = (Point)newEdge[edgeIndex];
@@ -524,19 +531,19 @@ void TSP::BranchAndBound(const NodePtr& node, int edgeIndex) {
 				leftChild->AddRequiredEdges();
 				leftChild->ComputeLowerBound();
 				if (leftChild->LowerBound() >= 2 * bestTour) {
-					leftChild.reset();
-					leftChild = nullptr;
+					delete leftChild;
+					leftChild = NULL;
 					numberPrunedNodes++;
 				}
 				// Create right child node
-				NodePtr rightChild(new Node(numRows, numCols));
+				Node* rightChild = new Node(numRows, numCols);
 				newNodeCount++;
-				rightChild->SetConstraint(copy(node->Constraint()));
+				rightChild->SetConstraint(node->Constraint());
 				if (leftEdgeIndex >= newEdge.size()) {
-					rightChild.reset();
-					rightChild = nullptr;
-					leftChild.reset();
-					leftChild = nullptr;
+					delete rightChild;
+					rightChild = NULL;
+					delete leftChild;
+					leftChild = NULL;
 					return;
 				}
 				p = (Point)newEdge[leftEdgeIndex + 1];
@@ -545,17 +552,17 @@ void TSP::BranchAndBound(const NodePtr& node, int edgeIndex) {
 				rightChild->AddRequiredEdges();
 				rightChild->ComputeLowerBound();
 				if (rightChild->LowerBound() > 2 * bestTour) {
-					rightChild.reset();
-					rightChild = nullptr;
+					delete rightChild;
+					rightChild = NULL;
 					numberPrunedNodes++;
 				}
-				if (leftChild != nullptr && rightChild == nullptr) {
+				if (leftChild != NULL && rightChild == NULL) {
 					BranchAndBound(leftChild, leftEdgeIndex);
 				}
-				else if (leftChild == nullptr && rightChild != nullptr) {
+				else if (leftChild == NULL && rightChild != NULL) {
 					BranchAndBound(rightChild, rightEdgeIndex);
 				}
-				else if (leftChild != nullptr && rightChild != nullptr
+				else if (leftChild != NULL && rightChild != NULL
 					&& leftChild->LowerBound() <= rightChild->LowerBound()) 
 				{
 					if (leftChild->LowerBound() < 2 * bestTour) {
@@ -563,8 +570,8 @@ void TSP::BranchAndBound(const NodePtr& node, int edgeIndex) {
 					}
 					else 
 					{
-						leftChild.reset();
-						leftChild = nullptr;
+						delete leftChild;
+						leftChild = NULL;
 						numberPrunedNodes++;
 					}
 
@@ -573,20 +580,20 @@ void TSP::BranchAndBound(const NodePtr& node, int edgeIndex) {
 					}
 					else 
 					{
-						rightChild.reset();
-						rightChild = nullptr;
+						delete rightChild;
+						rightChild = NULL;
 						numberPrunedNodes++;
 					}
 				}
-				else if (rightChild != nullptr)
+				else if (rightChild != NULL)
 				{
 					if (rightChild->LowerBound() < 2 * bestTour) {
 						BranchAndBound(rightChild, rightEdgeIndex);
 					}
 					else 
 					{
-						rightChild.reset();
-						rightChild = nullptr;
+						delete rightChild;
+						rightChild = NULL;
 						numberPrunedNodes++;
 					}
 					if (leftChild->LowerBound() < 2 * bestTour) 
@@ -595,16 +602,22 @@ void TSP::BranchAndBound(const NodePtr& node, int edgeIndex) {
 					}
 					else 
 					{
-						leftChild.reset();
-						leftChild = nullptr;
+						delete leftChild;
+						leftChild = NULL;
 						numberPrunedNodes++;
 					}
 				}
 
-				if (leftChild != nullptr)
-					leftChild.reset();
-				if (rightChild != nullptr)
-					rightChild.reset();
+				if (leftChild != NULL)
+				{
+					delete leftChild;
+					leftChild = NULL;
+				}
+				if (rightChild != NULL)
+				{
+					delete rightChild;
+					rightChild = NULL;
+				}
 			}
 		}
 	}
@@ -612,18 +625,18 @@ void TSP::BranchAndBound(const NodePtr& node, int edgeIndex) {
 
 //////////////////////////////////////////////////////////////////////////////
 
-int** TSP::copy(int** constraint) {
+/*int** TSP::copy(int** constraint) {
 	int** toReturn = new int*[numRows + 1];
-	for (int row = 1; row <= numRows; row++) {
+	for (int row = 0; row <= numRows; row++) {
 		toReturn[row] = new int[numCols + 1];
 	}
-	for (int row = 1; row <= numRows; row++) {
-		for (int col = 1; col <= numCols; col++) {
+	for (int row = 0; row <= numRows; row++) {
+		for (int col = 0; col <= numCols; col++) {
 			toReturn[row][col] = constraint[row][col];
 		}
 	}
 	return toReturn;
-}
+}*/
 
 //////////////////////////////////////////////////////////////////////////////
 

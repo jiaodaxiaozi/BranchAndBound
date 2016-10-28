@@ -13,8 +13,6 @@ using namespace std;
 
 #define MAX_VALUE 32600
 
-typedef std::tr1::shared_ptr<vector<int>> BitsetPtr;
-
 class Node {
 	// Fields
 private:
@@ -31,7 +29,7 @@ private:
 	int* trip;
 	CString nodeAsString; // Used by isTour query
 	boolean isLoop = false;
-	BitsetPtr b; // Used by isCycle and initialized in TSPUI
+	vector<int> b; // Used by isCycle and initialized in TSPUI
 	// Constructor
 
 public:
@@ -78,7 +76,7 @@ public:
 
 	int NextSmallest();
 
-	int NumCities(const BitsetPtr& b);
+	int NumCities(vector<int> b);
 };
 
 typedef std::shared_ptr<Node> NodePtr;
@@ -94,7 +92,7 @@ private:
 	int numRows;
 	int numCols;
 	int bestTour = MAX_VALUE / 4;
-	NodePtr bestNode;
+	Node* bestNode;
 	// Contains objects of type Point
 	int newNodeCount = 0;
 	int numberPrunedNodes = 0;
@@ -126,9 +124,9 @@ public:
 
 	int* trip();
 
-	void BranchAndBound(const NodePtr& node, int edgeIndex);
+	void BranchAndBound(Node* node, int edgeIndex);
 
-	int** copy(int** constraint);
+	//int** copy(int** constraint);
 
 	int GetBestTour();
 };
