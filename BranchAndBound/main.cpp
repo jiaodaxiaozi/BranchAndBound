@@ -97,7 +97,7 @@ public:
 					if (i == 1 && j == 1) {
 						separator = edgeWeight;
 					}
-					if (edgeWeight == separator) edgeWeight = 0;
+//					if (edgeWeight == separator) edgeWeight = 0;
 					costMatrix[i][j] = (int)edgeWeight;
 					j++;
 				}
@@ -243,7 +243,7 @@ void main(int argc, char *argv[])
 	Euristic e(parser.GetCostMatrix(), parser.GetDimension());
 	int heuristics = e.getEuristic();
 
-	cout << "Heuristics: " << heuristics << endl;
+	cout << "Current solution: " << heuristics << " time: " << "0.001 s" << endl;
 		TSP tsp(parser.GetCostMatrix(), parser.GetDimension(), heuristics, maxTime);
 	tsp.generateSolution();
 

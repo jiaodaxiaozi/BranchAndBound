@@ -501,7 +501,7 @@ void TSP::BranchAndBound(Node* node, int edgeIndex) {
 					//delete bestNode;
 				}
 				bestNode = node;
-				cout << "Current solution: " << bestTour << endl;
+				cout << "Current solution: " << bestTour << " time: " << ((std::clock() - start) / (double)CLOCKS_PER_SEC) << " s" << endl;
 				counter = 0;
 			}
 		}
